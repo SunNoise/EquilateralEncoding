@@ -10,7 +10,8 @@ namespace EquilateralEncoding.Tests
     {
         //1-4 All pass
         //5-43 Pico pass
-        //43-5000+ SixSigma pass
+        //44-1220 Nano pass
+        //1221-5000+ SixSigma pass
         private const int categories = 4;
         [Test]
         public void TestAllEqualDistance()
@@ -28,6 +29,12 @@ namespace EquilateralEncoding.Tests
         public void TestAllPicoEqualDistance()
         {
             TestPercentage(GetAllDistancesList(), 0.000000000001);
+        }
+
+        [Test]
+        public void TestAllNanoEqualDistance()
+        {
+            TestPercentage(GetAllDistancesList(), 0.000000001);
         }
 
         [Test]
