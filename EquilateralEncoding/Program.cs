@@ -55,16 +55,14 @@ namespace EquilateralEncoding
 
             for (int k = 2; k < n; k++)
             {
-                double r = k;
-                double f = Math.Sqrt(r * r - 1.0) / r;
-                var s = -1.0 / r;
+                double f = Math.Sqrt(k * k - 1.0) / k;
+                var s = -1.0 / k;
                 for (int i = 0; i < k; i++)
                 {
                     Result[i][k - 1] = s;
                     for (int j = 0; j < k - 1; j++)
                     {
                         Result[i][j] *= f;
-                        Result[k][j] = 0.0;
                     }
                 }
                 Result[k][k - 1] = 1.0;
