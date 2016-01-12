@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,21 +21,28 @@ namespace EquilateralEncoding
             Console.Write("Highest Range: ");
             double h = double.Parse(Console.ReadLine());
 
-            var eq = new Equilateral(n, h, l);
-            int y = 0;
-            foreach(var a in eq.Result)
-            {
-                var line = new StringBuilder();
-                line.Append(String.Format("{0}:", y));
-                for(int x = 0; x < a.Length;x++)
-                {
-                    if (x > 0)
-                        line.Append(',');
-                    line.Append(a[x]);
-                }
-                Console.WriteLine(line);
-                y++;
-            }
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            var eq = new Equilateral(n, h, l, true);
+            sw.Stop();
+
+            //show results
+            //int y = 0;
+            //foreach(var a in eq.Result)
+            //{
+            //    var line = new StringBuilder();
+            //    line.Append(String.Format("{0}:", y));
+            //    for(int x = 0; x < a.Length;x++)
+            //    {
+            //        if (x > 0)
+            //            line.Append(',');
+            //        line.Append(a[x]);
+            //    }
+            //    Console.WriteLine(line);
+            //    y++;
+            //}
+
+            Console.WriteLine(sw.Elapsed);
             Console.ReadKey();
         }
     }
@@ -41,37 +51,51 @@ namespace EquilateralEncoding
     {
         public double[][] Result { get; }
 
-        public Equilateral(int n, double high = 1, double low = -1)
+        public Equilateral(int n, double high = 1, double low = -1, bool toFile = false)
         {
+            string filename = String.Format("EqFiles/{0}.txt", n);
             Result = new double[n][]; // n - 1
             for (int i = 0; i < n; i++)
             {
                 Result[i] = new double[n - 1];
             }
 
-            //seed for the first two categories
             Result[0][0] = -1;
             Result[1][0] = 1.0;
 
-            for (int k = 2; k < n; k++)
+            if (!File.Exists(filename))
             {
-                double f = Math.Sqrt(k * k - 1.0) / k;
-                var s = -1.0 / k;
-                for (int i = 0; i < k; i++)
+                for (int k = 2; k < n; k++)
                 {
-                    Result[i][k - 1] = s;
-                    for (int j = 0; j < k - 1; j++)
+                    double f = Math.Sqrt(k * k - 1.0) / k;
+                    var s = -1.0 / k;
+                    for (int i = 0; i < k; i++)
                     {
-                        Result[i][j] *= f;
+                        Result[i][k - 1] = s;
+                        for (int j = 0; j < k - 1; j++)
+                        {
+                            Result[i][j] *= f;
+                        }
                     }
+                    Result[k][k - 1] = 1.0;
                 }
-                Result[k][k - 1] = 1.0;
+                if(toFile && n > 280)
+                {
+                    var dir = filename.Split('/').First();
+                    if (!Directory.Exists(dir))
+                        Directory.CreateDirectory(dir);
+                    BinaryFormatter bf = new BinaryFormatter();
+                    FileStream ms = new FileStream(filename,FileMode.Create);
+                    bf.Serialize(ms, Result);
+                }
             }
-
-            if (low == -1 && high == 1)
-                return;
-
-            //scale to other ranges different than (-1,1)
+            else
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                FileStream ms = new FileStream(filename, FileMode.Open);
+                Result = (double[][])bf.Deserialize(ms);
+            }
+            
             for (int row = 0; row < Result.GetLength(0); row++)
             {
                 for (int col = 0; col < Result[0].GetLength(0); col++)

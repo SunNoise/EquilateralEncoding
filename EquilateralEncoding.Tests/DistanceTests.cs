@@ -12,7 +12,7 @@ namespace EquilateralEncoding.Tests
         //5-43 Pico pass
         //44-1220 Nano pass
         //1221-5000+ SixSigma pass
-        private const int categories = 4;
+        private const int categories = 1000;
         [Test]
         public void TestAllEqualDistance()
         {
